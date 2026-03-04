@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>주간 계획표</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161e;
+    --border: #1e2330;
+    --accent: #4af0a0;
+    --text: #e2e8f0;
+    --muted: #7a8aa0;
+    --HP: 64px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; padding: 28px 16px 60px; }
+
+  .header { text-align: center; margin-bottom: 20px; }
+  .header .label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent); letter-spacing: 4px; margin-bottom: 8px; }
+  .header h1 { font-size: 24px; font-weight: 700; }
+  .header p { font-size: 11px; color: var(--muted); margin-top: 6px; font-family: 'JetBrains Mono', monospace; }
+
+  .legend { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  .cal-scroll { overflow-x: auto; }
+  .cal {
+    display: grid;
+    grid-template-columns: 44px repeat(7, minmax(100px, 1fr));
+    min-width: 640px; max-width: 1020px;
+    margin: 0 auto; gap: 0 2px;
+  }
+
+  .dh {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 700; text-align: center;
+    padding: 10px 2px; color: #c0cfe0; letter-spacing: 1px;
+    background: var(--surface); border-radius: 6px 6px 0 0;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .dh.wk { color: #f08070; }
+  .corner { background: var(--bg); position: sticky; top: 0; z-index: 11; }
+
+  .time-col { position: relative; }
+  .tick {
+    position: absolute; right: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; color: #8a9ab0;
+    transform: translateY(-50%); white-space: nowrap;
+  }
+
+  .day-col { position: relative; background: var(--surface); border-radius: 0 0 6px 6px; }
+  .day-col.drag-over { background: #1a2030; }
+
+  .hline { position: absolute; left: 0; right: 0; border-top: 1px solid var(--border); pointer-events: none; }
+  .hline.half { border-top: 1px dashed rgba(255,255,255,0.04); }
+
+  /* ghost snap line */
+  .snap-line {
+    position: absolute; left: 0; right: 0; height: 2px;
+    background: var(--accent); opacity: 0; pointer-events: none;
+    border-radius: 2px; z-index: 50;
+    box-shadow: 0 0 6px var(--accent);
+  }
+
+  .blk {
+    position: absolute; left: 3px; right: 3px;
+    border-radius: 5px; padding: 4px 6px;
+    border-left: 3px solid transparent;
+    overflow: visible; cursor: grab;
+    transition: filter .12s, box-shadow .12s;
+    z-index: 5;
+  }
+  .blk:hover { filter: brightness(1.2); box-shadow: 0 4px 14px rgba(0,0,0,.4); z-index: 20; }
+  .blk.dragging { opacity: .45; cursor: grabbing; z-index: 1; }
+  .blk .bt { font-family:'JetBrains Mono',monospace; font-size:8px; opacity:.6; display:block; margin-bottom:1px; }
+  .blk .bn { font-size:11px; font-weight:600; line-height:1.3; }
+  .blk .bs { font-size:10px; opacity:.7; margin-top:1px; line-height:1.25; }
+
+  .blk-edit {
+    position: absolute; top: -8px; right: -8px;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #1e2535; border: 1.5px solid #4a9ff0;
+    color: #4a9ff0; font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; opacity: 0;
+    transition: opacity .15s, transform .15s, background .15s;
+    z-index: 30;
+  }
+  .blk:hover .blk-edit { opacity: 1; }
+  .blk-edit:hover { background: #4a9ff0; color: #0d0f14; transform: scale(1.12); }
+
+  /* resize handle */
+  .blk-resize {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 8px; cursor: ns-resize;
+    border-radius: 0 0 5px 5px;
+    z-index: 25;
+  }
+  .blk-resize::after {
+    content: '';
+    position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%);
+    width: 20px; height: 2px; border-radius: 2px;
+    background: rgba(255,255,255,0); transition: background .15s;
+  }
+  .blk:hover .blk-resize::after { background: rgba(255,255,255,0.25); }
+  .add-row {
+    display: grid;
+    grid-template-columns: 44px repeat(7, minmax(100px, 1fr));
+    min-width: 640px; max-width: 1020px;
+    margin: 3px auto 0; gap: 0 2px;
+  }
+  .add-col-btn {
+    background: #0f1219; border: 1px dashed #1e2330;
+    border-top: none; border-radius: 0 0 7px 7px;
+    color: #5a6a80; padding: 7px 0;
+    font-family: 'Noto Sans KR', sans-serif; font-size: 11px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .add-col-btn:hover { background: #151b28; color: #4af0a0; border-color: #4af0a0; }
+
+  /* ── modal ── */
+  .modal-bg {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.72); z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: #181c27; border: 1px solid var(--border);
+    border-radius: 12px; padding: 22px 26px; width: 360px;
+    box-shadow: 0 24px 60px rgba(0,0,0,.6);
+  }
+  .modal h3 { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--accent); letter-spacing:3px; margin-bottom:14px; }
+  .modal label { font-size:11px; color:var(--muted); display:block; margin-bottom:3px; }
+  .modal input, .modal select, .modal textarea {
+    width:100%; background:var(--bg); border:1px solid var(--border);
+    border-radius:6px; color:var(--text); padding:7px 10px;
+    font-family:'Noto Sans KR',sans-serif; font-size:13px;
+    margin-bottom:10px; outline:none;
+  }
+  .modal input:focus, .modal select:focus, .modal textarea:focus { border-color:#4a9ff0; }
+  .modal textarea { height:52px; resize:vertical; }
+  .trow { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+
+  /* color picker row */
+  .color-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+  .cp {
+    width:26px; height:26px; border-radius:50%; cursor:pointer;
+    border:2px solid transparent; transition:border-color .15s, transform .1s;
+    flex-shrink:0;
+  }
+  .cp.selected { border-color: #fff; transform: scale(1.15); }
+  .cp-custom {
+    width:26px; height:26px; border-radius:50%;
+    border:2px dashed #4a5568; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px; color:#4a5568; overflow:hidden;
+    flex-shrink:0;
+  }
+  .cp-custom input[type=color] {
+    width:200%; height:200%; margin:-50%; opacity:0; cursor:pointer; padding:0; border:none;
+  }
+
+  .mbtns { display:flex; gap:8px; justify-content:flex-end; margin-top:4px; }
+  .btn { padding:7px 16px; border-radius:6px; font-size:12px; cursor:pointer; border:none; font-family:'Noto Sans KR',sans-serif; font-weight:500; }
+  .btn-cancel { background:var(--border); color:var(--muted); }
+  .btn-save   { background:var(--accent); color:#0d0f14; }
+  .btn-del    { background:rgba(240,90,74,.18); color:#f05a4a; margin-right:auto; }
+  .btn:hover  { opacity:.85; }
+
+  /* ── toolbar ── */
+  .toolbar {
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; flex-wrap: wrap;
+    max-width: 1020px; margin: 0 auto 18px;
+    padding: 0 4px;
+  }
+  .tb-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 7px; border: 1px solid var(--border);
+    background: var(--surface); color: #a0b0c0;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    cursor: pointer; transition: all .15s; white-space: nowrap;
+  }
+  .tb-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(74,240,160,.06); }
+  .tb-btn.saved { border-color: var(--accent); color: var(--accent); }
+  .tb-sep { width: 1px; height: 22px; background: var(--border); }
+  .tb-status {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--muted); letter-spacing: 1px;
+  }
+  .tb-status.ok  { color: #4af0a0; }
+  .tb-status.err { color: #f05a4a; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="label">// weekly schedule</div>
+  <h1>이번 학기 주간 루틴</h1>
+  <p>드래그로 이동 &nbsp;|&nbsp; ✏️ 버튼으로 편집 &nbsp;|&nbsp; 하단 + 로 추가</p>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<!-- toolbar -->
+<div class="toolbar">
+  <button class="tb-btn" id="tbSave" onclick="saveToLocal()">💾 저장</button>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" onclick="exportJSON()">⬇️ 내보내기</button>
+  <button class="tb-btn" onclick="document.getElementById('importFile').click()">⬆️ 불러오기</button>
+  <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
+  <div class="tb-sep"></div>
+  <span class="tb-status" id="tbStatus">// 불러오는 중...</span>
+</div>
+
+<div class="cal-scroll">
+  <div class="cal" id="cal">
+    <div class="corner"></div>
+    <div class="dh">MON<br>월</div>
+    <div class="dh">TUE<br>화</div>
+    <div class="dh">WED<br>수</div>
+    <div class="dh">THU<br>목</div>
+    <div class="dh">FRI<br>금</div>
+    <div class="dh wk">SAT<br>토</div>
+    <div class="dh wk">SUN<br>일</div>
+    <div class="time-col" id="tcol"></div>
+    <div class="day-col" id="c0"></div>
+    <div class="day-col" id="c1"></div>
+    <div class="day-col" id="c2"></div>
+    <div class="day-col" id="c3"></div>
+    <div class="day-col" id="c4"></div>
+    <div class="day-col" id="c5"></div>
+    <div class="day-col" id="c6"></div>
+  </div>
+</div>
+
+<!-- add row -->
+<div class="cal-scroll">
+  <div class="add-row">
+    <div></div>
+    <button class="add-col-btn" onclick="openAdd(0)">＋ 월</button>
+    <button class="add-col-btn" onclick="openAdd(1)">＋ 화</button>
+    <button class="add-col-btn" onclick="openAdd(2)">＋ 수</button>
+    <button class="add-col-btn" onclick="openAdd(3)">＋ 목</button>
+    <button class="add-col-btn" onclick="openAdd(4)">＋ 금</button>
+    <button class="add-col-btn" onclick="openAdd(5)">＋ 토</button>
+    <button class="add-col-btn" onclick="openAdd(6)">＋ 일</button>
+  </div>
+</div>
+<div id="dragGhost" style="
+  position:fixed; pointer-events:none; z-index:300;
+  border-radius:5px; padding:4px 8px; font-size:11px; font-weight:600;
+  border-left:3px solid transparent; opacity:0;
+  font-family:'Noto Sans KR',sans-serif; color:#e2e8f0;
+  box-shadow:0 8px 24px rgba(0,0,0,.5); min-width:80px;
+  display:none;
+"></div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="mbg">
+  <div class="modal">
+    <h3 id="mh3">// EDIT BLOCK</h3>
+    <label>제목</label>
+    <input type="text" id="mT" placeholder="블록 제목">
+    <label>서브 텍스트</label>
+    <textarea id="mS" placeholder="설명 (선택)"></textarea>
+    <label>색상</label>
+    <div class="color-row" id="colorRow"></div>
+    <label>시간</label>
+    <div class="trow">
+      <input type="time" id="mSt" step="1800">
+      <input type="time" id="mEn" step="1800">
+    </div>
+    <div class="mbtns">
+      <button class="btn btn-del" id="bDel">삭제</button>
+      <button class="btn btn-cancel" id="bCan">취소</button>
+      <button class="btn btn-save"  id="bSav">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const S=7;
+let E=24, HP=64;
+let eid=null, aday=null;
+
+// ── colour palette ─────────────────────────────────────────────────────────
+const PALETTE = [
+  {name:"그린",    bg:"rgba(74,240,160,.14)",  border:"#4af0a0"},  // 0: 정처기/정보기
+  {name:"블루",    bg:"rgba(74,159,240,.14)",  border:"#4a9ff0"},  // 1: 블로그/CTF
+  {name:"오렌지",  bg:"rgba(240,160,74,.14)",  border:"#f0a04a"},  // 2: 인코 프로젝트
+  {name:"퍼플",    bg:"rgba(208,74,240,.12)",  border:"#d04af0"},  // 3: 수업
+  {name:"레드",    bg:"rgba(240,90,74,.14)",   border:"#f05a4a"},  // 4: 알바
+  {name:"슬레이트",bg:"rgba(74,85,104,.14)",   border:"#6a7585"},  // 5: 휴식
+  {name:"시안",    bg:"rgba(56,180,180,.10)",  border:"#38b0b0"},  // 6: 이동
+  {name:"핑크",    bg:"rgba(240,100,160,.13)", border:"#f064a0"},  // 7: 핑크
+  {name:"옐로우",  bg:"rgba(240,220,60,.12)",  border:"#f0dc3c"},  // 8: 식사
+];
+
+const TYPES = {
+  cert:  0, blog: 1, proj: 2, class: 3, alba: 4, rest: 5,
+};
+
+let data = [
+    {id:1,  day:0, start:"10:00", end:"12:00", ci:0, title:"📝 정처기/정보기",      sub:"기출 풀기 → 개념 확인"},
+    {id:2,  day:0, start:"12:00", end:"13:00", ci:8, title:"🍽️ 점심",              sub:""},
+    {id:3,  day:0, start:"13:00", end:"17:00", ci:0, title:"📝 정보보안개론",       sub:"정보기 대비 독서"},
+    {id:4,  day:0, start:"17:00", end:"18:00", ci:8, title:"🍽️ 저녁",              sub:""},
+    {id:5,  day:0, start:"18:00", end:"22:00", ci:2, title:"⚙️ 인코 프젝",         sub:"프젝 작업"},
+    {id:6,  day:0, start:"22:00", end:"23:00", ci:5, title:"휴식",                 sub:""},
+    {id:8,  day:1, start:"09:00", end:"12:00", ci:3, title:"리눅스시스템",          sub:"6406"},
+    {id:9,  day:1, start:"12:00", end:"13:30", ci:3, title:"데이터통신",            sub:"6406"},
+    {id:11, day:1, start:"15:00", end:"16:00", ci:8, title:"🍽️ 점심",              sub:"귀가 후"},
+    {id:12, day:1, start:"16:00", end:"19:00", ci:5, title:"유동 (인코 or 자격증)", sub:""},
+    {id:14, day:1, start:"19:00", end:"20:00", ci:8, title:"🍽️ 저녁",              sub:""},
+    {id:13, day:1, start:"20:00", end:"22:00", ci:0, title:"📝 정처기/정보기",      sub:"기출 풀기"},
+    {id:15, day:1, start:"22:00", end:"23:00", ci:5, title:"휴식",                 sub:""},
+    {id:18, day:2, start:"14:00", end:"15:00", ci:3, title:"채플",                 sub:"9301"},
+    {id:19, day:2, start:"15:00", end:"18:00", ci:3, title:"통계와데이터분석",      sub:"B105"},
+    {id:21, day:2, start:"19:30", end:"20:30", ci:8, title:"🍽️ 저녁",              sub:"귀가 후"},
+    {id:100,day:2, start:"20:30", end:"22:00", ci:1, title:"✍️ 블로그",             sub:""},
+    {id:22, day:2, start:"22:00", end:"23:00", ci:5, title:"휴식",                 sub:""},
+    {id:24, day:3, start:"12:00", end:"13:30", ci:3, title:"데이터통신",            sub:"6406"},
+    {id:25, day:3, start:"13:30", end:"14:30", ci:8, title:"🍽️ 점심",              sub:"수업 후"},
+    {id:26, day:3, start:"14:30", end:"18:00", ci:1, title:"✍️ 블로그 + CTF",      sub:"writeup 작성 ⭐"},
+    {id:28, day:3, start:"18:00", end:"19:00", ci:3, title:"졸업지도",              sub:"6206"},
+    {id:30, day:3, start:"20:30", end:"21:30", ci:8, title:"🍽️ 저녁",              sub:"귀가 후"},
+    {id:31, day:3, start:"22:00", end:"23:00", ci:5, title:"휴식",                 sub:""},
+    {id:33, day:4, start:"12:00", end:"15:00", ci:3, title:"보안시스템",            sub:"6406"},
+    {id:34, day:4, start:"15:00", end:"18:00", ci:3, title:"생활속의보안",          sub:"6406"},
+    {id:36, day:4, start:"19:30", end:"20:30", ci:8, title:"🍽️ 저녁",              sub:"귀가 후"},
+    {id:101,day:4, start:"20:30", end:"22:00", ci:1, title:"✍️ 블로그",             sub:""},
+    {id:38, day:4, start:"22:00", end:"23:00", ci:5, title:"휴식",                 sub:"주말 전 충전"},
+    {id:39, day:5, start:"09:00", end:"16:00", ci:4, title:"🍔 버거킹 알바",       sub:""},
+    {id:41, day:5, start:"17:00", end:"19:00", ci:2, title:"👥 인코 회의",          sub:"2시간 이내"},
+    {id:42, day:5, start:"19:00", end:"23:00", ci:5, title:"전공 복습 및 과제",    sub:""},
+    {id:43, day:6, start:"09:00", end:"16:00", ci:4, title:"🍔 버거킹 알바",       sub:""},
+    {id:45, day:6, start:"17:00", end:"23:00", ci:5, title:"전공 복습 및 과제",    sub:""},
+];
+let nid = 102;
+// ── helpers ──────────────────────────────────────────────────────────────────
+const t2m = t => { const [h,m]=t.split(":").map(Number); return h*60+m; };
+const m2px = m => ((m - S*60)/60)*HP;
+const dur2px = m => (m/60)*HP;
+const m2str = m => {
+  const h=Math.floor(m/60), mn=m%60;
+  return String(h).padStart(2,"0")+":"+String(mn).padStart(2,"0");
+};
+const snap30 = m => Math.round(m/30)*30;
+
+// ── legend ──────────────────────────────────────────────────────────────────
+function buildLegend() {
+  const lg = document.getElementById("legend");
+  lg.innerHTML = PALETTE.map(p=>`
+    <div class="legend-item">
+      <div class="dot" style="background:${p.border}"></div>${p.name}
+    </div>`).join("");
+}
+
+// ── render ───────────────────────────────────────────────────────────────────
+function render() {
+  // 블록 중 가장 늦은 종료 시간에 맞춰 동적으로 끝 시간 결정 (최소 21시)
+  const maxEnd = data.reduce((acc, b) => Math.max(acc, t2m(b.end)), 21*60);
+  E = Math.ceil(maxEnd / 60);
+  const total = (E-S)*HP;
+  const tc = document.getElementById("tcol");
+  tc.style.cssText = `position:relative;height:${total}px`;
+  tc.innerHTML = "";
+  for(let h=S;h<=E;h++){
+    const d=document.createElement("div");
+    d.className="tick"; d.style.top=m2px(h*60)+"px";
+    d.textContent=h+":00"; tc.appendChild(d);
+  }
+
+  for(let col=0;col<7;col++){
+    const el=document.getElementById("c"+col);
+    el.style.cssText=`position:relative;height:${total}px`;
+    el.innerHTML="";
+
+    for(let h=S;h<=E;h++){
+      const ln=document.createElement("div");
+      ln.className="hline"; ln.style.top=m2px(h*60)+"px"; el.appendChild(ln);
+      if(h<E){
+        const lh=document.createElement("div");
+        lh.className="hline half"; lh.style.top=m2px(h*60+30)+"px"; el.appendChild(lh);
+      }
+    }
+
+    // snap line
+    const sl=document.createElement("div");
+    sl.className="snap-line"; sl.id="snap-"+col; el.appendChild(sl);
+
+    data.filter(b=>b.day===col).forEach(b=>{
+      const sm=t2m(b.start), em=t2m(b.end);
+      const pal = PALETTE[b.ci] || PALETTE[0];
+      const blk=document.createElement("div");
+      blk.className="blk";
+      blk.dataset.id=b.id;
+      blk.style.cssText=`
+        top:${m2px(sm)}px;
+        height:${Math.max(dur2px(em-sm)-2,18)}px;
+        background:${pal.bg};
+        border-color:${pal.border};
+      `;
+      // edit button
+      const editBtn=document.createElement("div");
+      editBtn.className="blk-edit"; editBtn.title="편집"; editBtn.textContent="✏️";
+      editBtn.addEventListener("mousedown", e=>{ e.stopPropagation(); });
+      editBtn.addEventListener("click", e=>{ e.stopPropagation(); openEdit(b.id); });
+      blk.innerHTML=`<span class="bt">${b.start}–${b.end}</span><div class="bn">${b.title}</div>${b.sub?`<div class="bs">${b.sub}</div>`:""}`;
+      // resize handle
+      const resizeHandle=document.createElement("div");
+      resizeHandle.className="blk-resize";
+      resizeHandle.addEventListener("mousedown", e=>{ e.stopPropagation(); startResize(e, b.id, blk); });
+      blk.appendChild(resizeHandle);
+      blk.appendChild(editBtn);
+      attachDrag(blk, b.id);
+      el.appendChild(blk);
+    });
+  }
+}
+
+// ── DRAG ─────────────────────────────────────────────────────────────────────
+let dragState = null;
+
+function attachDrag(blkEl, id) {
+  blkEl.addEventListener("mousedown", e=>{
+    if(e.button!==0) return;
+    // don't start drag from the edit button
+    if(e.target.classList.contains("blk-edit")) return;
+    e.preventDefault(); e.stopPropagation();
+
+    const b = data.find(x=>x.id===id);
+    if(!b) return;
+
+    const startX=e.clientX, startY=e.clientY;
+    const rect = blkEl.getBoundingClientRect();
+    const offsetY = e.clientY - rect.top;
+    const pal = PALETTE[b.ci]||PALETTE[0];
+    const durMin = t2m(b.end)-t2m(b.start);
+    let dragStarted = false;
+
+    const ghost = document.getElementById("dragGhost");
+
+    function startDragVisuals() {
+      ghost.style.cssText=`
+        position:fixed; pointer-events:none; z-index:300;
+        border-radius:5px; padding:4px 8px; font-size:11px; font-weight:600;
+        border-left:3px solid ${pal.border}; background:${pal.bg};
+        opacity:.9; font-family:'Noto Sans KR',sans-serif; color:#e2e8f0;
+        box-shadow:0 8px 24px rgba(0,0,0,.5); min-width:80px;
+        display:block; width:${rect.width}px;
+      `;
+      ghost.innerHTML=`<span style="font-family:'JetBrains Mono',monospace;font-size:8px;opacity:.6;display:block">${b.start}–${b.end}</span><div style="font-size:11px;font-weight:600">${b.title}</div>`;
+      blkEl.classList.add("dragging");
+      dragState = { id, offsetY, durMin, origDay:b.day };
+    }
+
+    function onMove(e) {
+      const dx=e.clientX-startX, dy=e.clientY-startY;
+      if(!dragStarted && Math.sqrt(dx*dx+dy*dy)>5) {
+        dragStarted=true;
+        startDragVisuals();
+      }
+      if(!dragStarted) return;
+
+      ghost.style.left=(e.clientX-10)+"px";
+      ghost.style.top=(e.clientY-offsetY)+"px";
+
+      const hit=getColUnderCursor(e.clientX);
+      for(let i=0;i<7;i++) document.getElementById("snap-"+i).style.opacity=0;
+      if(hit){
+        const colRect=hit.rect;
+        const relY=e.clientY-offsetY-colRect.top;
+        const rawMin=(relY/HP)*60+S*60;
+        const snapped=Math.max(S*60,Math.min(snap30(rawMin),(E*60)-durMin));
+        document.getElementById("snap-"+hit.day).style.top=m2px(snapped)+"px";
+        document.getElementById("snap-"+hit.day).style.opacity=1;
+      }
+    }
+
+    function onUp(e) {
+      document.removeEventListener("mousemove",onMove);
+      document.removeEventListener("mouseup",onUp);
+
+      if(!dragStarted) { ghost.style.display="none"; return; }
+
+      ghost.style.display="none";
+      for(let i=0;i<7;i++) document.getElementById("snap-"+i).style.opacity=0;
+
+      const hit=getColUnderCursor(e.clientX);
+      if(hit){
+        const colRect=hit.rect;
+        const relY=e.clientY-offsetY-colRect.top;
+        const rawMin=(relY/HP)*60+S*60;
+        const snapped=Math.max(S*60,Math.min(snap30(rawMin),(E*60)-durMin));
+        const idx=data.findIndex(x=>x.id===id);
+        if(idx>=0){
+          data[idx].day=hit.day;
+          data[idx].start=m2str(snapped);
+          data[idx].end=m2str(snapped+durMin);
+        }
+      }
+      blkEl.classList.remove("dragging");
+      dragState=null;
+      render(); scheduleSave();
+    }
+
+    document.addEventListener("mousemove",onMove);
+    document.addEventListener("mouseup",onUp);
+  });
+}
+
+function getColUnderCursor(cx) {
+  for(let i=0;i<7;i++){
+    const col=document.getElementById("c"+i);
+    const r=col.getBoundingClientRect();
+    if(cx>=r.left && cx<=r.right) return {col,day:i,rect:r};
+  }
+  return null;
+}
+
+// ── RESIZE ────────────────────────────────────────────────────────────────────
+function startResize(e, id, blkEl) {
+  if(e.button!==0) return;
+  e.preventDefault();
+
+  const b = data.find(x=>x.id===id);
+  if(!b) return;
+
+  const colEl = blkEl.closest(".day-col");
+  const colRect = colEl.getBoundingClientRect();
+  const startMin = t2m(b.start);
+
+  blkEl.classList.add("dragging");
+
+  function onMove(e) {
+    const relY = e.clientY - colRect.top;
+    const rawMin = (relY / HP) * 60 + S * 60;
+    const snapped = snap30(rawMin);
+    // minimum 30 min block
+    const newEndMin = Math.max(startMin + 30, Math.min(snapped, E * 60));
+    const idx = data.findIndex(x=>x.id===id);
+    if(idx>=0) data[idx].end = m2str(newEndMin);
+
+    // live update block height + time label
+    const newH = Math.max(dur2px(newEndMin - startMin) - 2, 18);
+    blkEl.style.height = newH + "px";
+    const bt = blkEl.querySelector(".bt");
+    if(bt) bt.textContent = `${b.start}–${m2str(newEndMin)}`;
+
+    // snap line on current col
+    for(let i=0;i<7;i++) document.getElementById("snap-"+i).style.opacity=0;
+    const snapEl = colEl.querySelector(".snap-line");
+    if(snapEl){ snapEl.style.top = m2px(newEndMin)+"px"; snapEl.style.opacity=1; }
+  }
+
+  function onUp() {
+    document.removeEventListener("mousemove", onMove);
+    document.removeEventListener("mouseup", onUp);
+    blkEl.classList.remove("dragging");
+    for(let i=0;i<7;i++) document.getElementById("snap-"+i).style.opacity=0;
+    render(); scheduleSave();
+  }
+
+  document.addEventListener("mousemove", onMove);
+  document.addEventListener("mouseup", onUp);
+}
+
+// ── MODAL ────────────────────────────────────────────────────────────────────
+let selectedCI = 0;
+
+function buildColorPicker(currentCI) {
+  const row=document.getElementById("colorRow");
+  row.innerHTML="";
+  PALETTE.forEach((p,i)=>{
+    const cp=document.createElement("div");
+    cp.className="cp"+(i===currentCI?" selected":"");
+    cp.style.background=p.border;
+    cp.title=p.name;
+    cp.addEventListener("click",()=>{
+      selectedCI=i;
+      row.querySelectorAll(".cp").forEach(x=>x.classList.remove("selected"));
+      cp.classList.add("selected");
+    });
+    row.appendChild(cp);
+  });
+
+  // custom color button
+  const custom=document.createElement("div");
+  custom.className="cp-custom"; custom.title="커스텀 색상";
+  const ci=document.createElement("input");
+  ci.type="color"; ci.value="#ffffff";
+  ci.addEventListener("input", ev=>{
+    const hex=ev.target.value;
+    // create a temporary palette entry (or override last)
+    const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+    if(PALETTE.length>9) PALETTE.pop();
+    PALETTE.push({name:"커스텀",bg:`rgba(${r},${g},${b},.14)`,border:hex});
+    selectedCI=PALETTE.length-1;
+    buildColorPicker(selectedCI);
+  });
+  custom.innerHTML="＋";
+  custom.appendChild(ci);
+  row.appendChild(custom);
+}
+
+function openEdit(id){
+  const b=data.find(x=>x.id===id); if(!b) return;
+  eid=id; aday=null;
+  document.getElementById("mh3").textContent="// EDIT BLOCK";
+  document.getElementById("mT").value=b.title;
+  document.getElementById("mS").value=b.sub;
+  document.getElementById("mSt").value=b.start;
+  document.getElementById("mEn").value=b.end;
+  selectedCI=b.ci;
+  buildColorPicker(b.ci);
+  document.getElementById("bDel").style.display="";
+  document.getElementById("mbg").classList.add("open");
+}
+function openAdd(day){
+  eid=null; aday=day;
+  document.getElementById("mh3").textContent="// ADD BLOCK";
+  document.getElementById("mT").value="";
+  document.getElementById("mS").value="";
+  document.getElementById("mSt").value="09:00";
+  document.getElementById("mEn").value="10:00";
+  selectedCI=0;
+  buildColorPicker(0);
+  document.getElementById("bDel").style.display="none";
+  document.getElementById("mbg").classList.add("open");
+}
+function closeModal(){ document.getElementById("mbg").classList.remove("open"); }
+
+document.getElementById("bCan").addEventListener("click",closeModal);
+document.getElementById("mbg").addEventListener("click",e=>{ if(e.target===document.getElementById("mbg")) closeModal(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeModal(); });
+
+document.getElementById("bSav").addEventListener("click",()=>{
+  const d={
+    title:document.getElementById("mT").value||"제목 없음",
+    sub:document.getElementById("mS").value,
+    ci:selectedCI,
+    start:document.getElementById("mSt").value,
+    end:document.getElementById("mEn").value,
+  };
+  if(eid!==null){
+    const i=data.findIndex(x=>x.id===eid);
+    if(i>=0) data[i]={...data[i],...d};
+  } else if(aday!==null){
+    data.push({id:nid++,day:aday,...d});
+  }
+  closeModal(); render(); scheduleSave();
+});
+
+document.getElementById("bDel").addEventListener("click",()=>{
+  if(eid!==null){ data=data.filter(x=>x.id!==eid); closeModal(); render(); scheduleSave(); }
+});
+
+// ── STORAGE ──────────────────────────────────────────────────────────────────
+const STORAGE_KEY = "hyunseo_schedule_v1";
+
+function saveToLocal() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({data, nid, palette: PALETTE}));
+    setStatus("✓ 저장됨", "ok");
+    const btn = document.getElementById("tbSave");
+    btn.classList.add("saved");
+    setTimeout(()=>btn.classList.remove("saved"), 1500);
+  } catch(e) {
+    setStatus("✗ 저장 실패", "err");
+  }
+}
+
+function loadFromLocal() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) { setStatus("// 새 시간표", ""); return false; }
+    const saved = JSON.parse(raw);
+    if(saved.data)    data    = saved.data;
+    if(saved.nid)     nid     = saved.nid;
+    if(saved.palette) saved.palette.forEach((p,i)=>{ if(i<PALETTE.length) PALETTE[i]=p; else PALETTE.push(p); });
+    const t = new Date().toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"});
+    setStatus(`✓ ${t} 로드됨`, "ok");
+    return true;
+  } catch(e) {
+    setStatus("✗ 불러오기 실패", "err"); return false;
+  }
+}
+
+function exportJSON() {
+  const blob = new Blob([JSON.stringify({data, nid, palette: PALETTE}, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  const d = new Date(); 
+  a.download = `schedule_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}.json`;
+  a.click();
+  setStatus("✓ 내보내기 완료", "ok");
+}
+
+function importJSON(e) {
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const saved = JSON.parse(ev.target.result);
+      if(saved.data)    data    = saved.data;
+      if(saved.nid)     nid     = saved.nid;
+      if(saved.palette) saved.palette.forEach((p,i)=>{ if(i<PALETTE.length) PALETTE[i]=p; else PALETTE.push(p); });
+      setStatus("✓ 가져오기 완료", "ok");
+      saveToLocal();
+      buildLegend(); render();
+    } catch(err) { setStatus("✗ 파일 오류", "err"); }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+}
+
+function setStatus(msg, cls) {
+  const el = document.getElementById("tbStatus");
+  el.textContent = msg;
+  el.className = "tb-status" + (cls ? " "+cls : "");
+  if(cls==="ok") setTimeout(()=>{ el.textContent="// 자동저장 켜짐"; el.className="tb-status"; }, 3000);
+}
+
+// auto-save: 데이터 변경 후 1초 뒤 자동저장
+let _saveTimer = null;
+function scheduleSave() {
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(saveToLocal, 1000);
+}
+
+buildLegend();
+loadFromLocal();
+render();
+
+</script>
+</body>
+</html>
