@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>주간 계획표</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   :root {
     --bg: #0d0f14;
@@ -216,6 +217,8 @@
   <button class="tb-btn" onclick="exportJSON()">⬇️ 내보내기</button>
   <button class="tb-btn" onclick="document.getElementById('importFile').click()">⬆️ 불러오기</button>
   <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
+  <div class="tb-sep"></div>
+  <button class="tb-btn" onclick="exportImage()">📷 이미지 저장</button>
   <div class="tb-sep"></div>
   <span class="tb-status" id="tbStatus">// 불러오는 중...</span>
 </div>
@@ -723,7 +726,44 @@ function importJSON(e) {
   e.target.value = "";
 }
 
-function setStatus(msg, cls) {
+function exportImage() {
+  setStatus("📷 캡처 중...", "");
+  // 캡처 대상: 헤더 + 캘린더 전체
+  const target = document.querySelector(".cal-scroll");
+  const header = document.querySelector(".header");
+
+  // 임시 래퍼 생성
+  const wrapper = document.createElement("div");
+  wrapper.style.cssText = `
+    background:#0d0f14; padding:28px 20px 20px;
+    display:inline-block; min-width:${target.scrollWidth + 40}px;
+  `;
+  const hClone = header.cloneNode(true);
+  const tClone = target.cloneNode(true);
+  wrapper.appendChild(hClone);
+  wrapper.appendChild(tClone);
+  document.body.appendChild(wrapper);
+
+  html2canvas(wrapper, {
+    backgroundColor: "#0d0f14",
+    scale: 2,
+    useCORS: true,
+    scrollX: 0, scrollY: 0,
+    width: wrapper.scrollWidth,
+    height: wrapper.scrollHeight,
+  }).then(canvas => {
+    document.body.removeChild(wrapper);
+    const a = document.createElement("a");
+    const d = new Date();
+    a.download = `schedule_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}.png`;
+    a.href = canvas.toDataURL("image/png");
+    a.click();
+    setStatus("✓ 이미지 저장됨", "ok");
+  }).catch(() => {
+    document.body.removeChild(wrapper);
+    setStatus("✗ 캡처 실패", "err");
+  });
+}
   const el = document.getElementById("tbStatus");
   el.textContent = msg;
   el.className = "tb-status" + (cls ? " "+cls : "");
