@@ -764,6 +764,8 @@ function exportImage() {
     setStatus("✗ 캡처 실패", "err");
   });
 }
+
+function setStatus(msg, cls) {
   const el = document.getElementById("tbStatus");
   el.textContent = msg;
   el.className = "tb-status" + (cls ? " "+cls : "");
