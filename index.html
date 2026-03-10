@@ -312,41 +312,47 @@ const TYPES = {
 };
 
 let data = [
-    {id:1,  day:0, start:"10:00", end:"12:00", ci:0, title:"📝 정처기/정보기",      sub:"기출 풀기 → 개념 확인"},
-    {id:2,  day:0, start:"12:00", end:"13:00", ci:8, title:"🍽️ 점심",              sub:""},
-    {id:3,  day:0, start:"13:00", end:"17:00", ci:0, title:"📝 정보보안개론",       sub:"정보기 대비 독서"},
-    {id:4,  day:0, start:"17:00", end:"18:00", ci:8, title:"🍽️ 저녁",              sub:""},
-    {id:5,  day:0, start:"18:00", end:"22:00", ci:2, title:"⚙️ 인코 프젝",         sub:"프젝 작업"},
-    {id:6,  day:0, start:"22:00", end:"23:00", ci:5, title:"휴식",                 sub:""},
-    {id:8,  day:1, start:"09:00", end:"12:00", ci:3, title:"리눅스시스템",          sub:"6406"},
-    {id:9,  day:1, start:"12:00", end:"13:30", ci:3, title:"데이터통신",            sub:"6406"},
-    {id:11, day:1, start:"15:00", end:"16:00", ci:8, title:"🍽️ 점심",              sub:"귀가 후"},
-    {id:12, day:1, start:"16:00", end:"19:00", ci:5, title:"유동 (인코 or 자격증)", sub:""},
-    {id:14, day:1, start:"19:00", end:"20:00", ci:8, title:"🍽️ 저녁",              sub:""},
-    {id:13, day:1, start:"20:00", end:"22:00", ci:0, title:"📝 정처기/정보기",      sub:"기출 풀기"},
-    {id:15, day:1, start:"22:00", end:"23:00", ci:5, title:"휴식",                 sub:""},
-    {id:18, day:2, start:"14:00", end:"15:00", ci:3, title:"채플",                 sub:"9301"},
-    {id:19, day:2, start:"15:00", end:"18:00", ci:3, title:"통계와데이터분석",      sub:"B105"},
-    {id:21, day:2, start:"19:30", end:"20:30", ci:8, title:"🍽️ 저녁",              sub:"귀가 후"},
-    {id:100,day:2, start:"20:30", end:"22:00", ci:1, title:"✍️ 블로그",             sub:""},
-    {id:22, day:2, start:"22:00", end:"23:00", ci:5, title:"휴식",                 sub:""},
-    {id:24, day:3, start:"12:00", end:"13:30", ci:3, title:"데이터통신",            sub:"6406"},
-    {id:25, day:3, start:"13:30", end:"14:30", ci:8, title:"🍽️ 점심",              sub:"수업 후"},
-    {id:26, day:3, start:"14:30", end:"18:00", ci:1, title:"✍️ 블로그 + CTF",      sub:"writeup 작성 ⭐"},
-    {id:30, day:3, start:"20:30", end:"21:30", ci:8, title:"🍽️ 저녁",              sub:"귀가 후"},
-    {id:31, day:3, start:"22:00", end:"23:00", ci:5, title:"휴식",                 sub:""},
-    {id:33, day:4, start:"12:00", end:"15:00", ci:3, title:"보안시스템",            sub:"6406"},
-    {id:34, day:4, start:"15:00", end:"18:00", ci:3, title:"생활속의보안",          sub:"6406"},
-    {id:36, day:4, start:"19:30", end:"20:30", ci:8, title:"🍽️ 저녁",              sub:"귀가 후"},
-    {id:101,day:4, start:"20:30", end:"22:00", ci:1, title:"✍️ 블로그",             sub:""},
-    {id:38, day:4, start:"22:00", end:"23:00", ci:5, title:"휴식",                 sub:"주말 전 충전"},
-    {id:39, day:5, start:"09:00", end:"16:00", ci:4, title:"🍔 버거킹 알바",       sub:""},
-    {id:41, day:5, start:"17:00", end:"19:00", ci:2, title:"👥 인코 회의",          sub:"2시간 이내"},
-    {id:42, day:5, start:"19:00", end:"23:00", ci:5, title:"전공 복습 및 과제",    sub:""},
-    {id:43, day:6, start:"09:00", end:"16:00", ci:4, title:"🍔 버거킹 알바",       sub:""},
-    {id:45, day:6, start:"17:00", end:"23:00", ci:5, title:"전공 복습 및 과제",    sub:""},
+    {id:1,   day:0, start:"10:00", end:"12:00", ci:0, title:"화햇준비",              sub:"📖 정보보안개론/보안 솔루션 + ✏️ 정보기 기출풀이"},
+    {id:2,   day:0, start:"12:00", end:"13:00", ci:8, title:"🍽️ 점심",              sub:""},
+    {id:3,   day:0, start:"13:00", end:"17:00", ci:0, title:"화햇준비",              sub:"📖 정보보안개론/보안 솔루션 + ✏️ 정보기 기출풀이"},
+    {id:4,   day:0, start:"17:00", end:"18:00", ci:8, title:"🍽️ 저녁",              sub:""},
+    {id:13,  day:0, start:"18:00", end:"22:00", ci:0, title:"화햇준비",              sub:"💻 CS 공부"},
+    {id:6,   day:0, start:"22:00", end:"23:00", ci:5, title:"휴식",                 sub:""},
+    {id:200, day:1, start:"07:30", end:"09:00", ci:6, title:"🚌 이동시간 (등교)",    sub:"📱 정처기 기출 앱 30문제"},
+    {id:8,   day:1, start:"09:00", end:"12:00", ci:3, title:"리눅스시스템",          sub:"6406"},
+    {id:9,   day:1, start:"12:00", end:"13:30", ci:3, title:"데이터통신",            sub:"6406"},
+    {id:201, day:1, start:"13:30", end:"15:00", ci:6, title:"🚌 이동시간 (하교)",    sub:"📰 보안뉴스 읽기 + 스크랩"},
+    {id:11,  day:1, start:"15:00", end:"16:00", ci:8, title:"🍽️ 점심",              sub:"귀가 후"},
+    {id:12,  day:1, start:"16:00", end:"19:00", ci:0, title:"화햇준비",              sub:"✏️ 정보기 기출풀이"},
+    {id:14,  day:1, start:"19:00", end:"20:00", ci:8, title:"🍽️ 저녁",              sub:""},
+    {id:103, day:1, start:"20:00", end:"22:00", ci:0, title:"화햇준비",              sub:"📝 기출 오답노트 (월, 화)"},
+    {id:15,  day:1, start:"22:00", end:"23:00", ci:5, title:"휴식",                 sub:""},
+    {id:204, day:2, start:"12:30", end:"14:00", ci:6, title:"🚌 이동시간 (등교)",    sub:"📱 정처기 기출 앱 30문제"},
+    {id:18,  day:2, start:"14:00", end:"15:00", ci:3, title:"채플",                 sub:"9301"},
+    {id:19,  day:2, start:"15:00", end:"18:00", ci:3, title:"통계와데이터분석",      sub:"B105"},
+    {id:205, day:2, start:"18:00", end:"19:30", ci:6, title:"🚌 이동시간 (하교)",    sub:"📰 보안뉴스 읽기 + 스크랩"},
+    {id:21,  day:2, start:"19:30", end:"20:30", ci:8, title:"🍽️ 저녁",              sub:""},
+    {id:5,   day:2, start:"20:30", end:"23:00", ci:2, title:"⚙️ 인코 프젝",         sub:"프젝 작업"},
+    {id:206, day:3, start:"10:30", end:"12:00", ci:6, title:"🚌 이동시간 (등교)",    sub:"📱 정처기 기출 앱 30문제"},
+    {id:24,  day:3, start:"12:00", end:"13:30", ci:3, title:"데이터통신",            sub:"6406"},
+    {id:207, day:3, start:"13:30", end:"15:00", ci:6, title:"🚌 이동시간 (하교)",    sub:"📰 보안뉴스 읽기 + 스크랩"},
+    {id:25,  day:3, start:"15:00", end:"16:00", ci:8, title:"🍽️ 점심",              sub:"귀가 후"},
+    {id:104, day:3, start:"16:00", end:"19:30", ci:0, title:"화햇준비",              sub:"📖 정보보안개론/보안 솔루션 + ✏️ 정보기 기출풀이"},
+    {id:30,  day:3, start:"19:30", end:"20:30", ci:8, title:"🍽️ 저녁",              sub:""},
+    {id:41,  day:3, start:"20:30", end:"23:00", ci:2, title:"👥 인코 회의",          sub:"2시간 이내"},
+    {id:208, day:4, start:"10:30", end:"12:00", ci:6, title:"🚌 이동시간 (등교)",    sub:"📱 정처기 기출 앱 30문제"},
+    {id:33,  day:4, start:"12:00", end:"15:00", ci:3, title:"보안시스템",            sub:"6406"},
+    {id:34,  day:4, start:"15:00", end:"18:00", ci:3, title:"생활속의보안",          sub:"6406"},
+    {id:209, day:4, start:"18:00", end:"19:30", ci:6, title:"🚌 이동시간 (하교)",    sub:"📰 보안뉴스 읽기 + 스크랩"},
+    {id:36,  day:4, start:"19:30", end:"20:30", ci:8, title:"🍽️ 저녁",              sub:"귀가 후"},
+    {id:105, day:4, start:"20:30", end:"22:00", ci:0, title:"화햇준비",              sub:"📝 오답노트 정리 (이번 주 틀린 개념 복기)"},
+    {id:38,  day:4, start:"22:00", end:"23:00", ci:5, title:"휴식",                 sub:""},
+    {id:39,  day:5, start:"09:00", end:"16:00", ci:4, title:"🍔 버거킹 알바",        sub:""},
+    {id:26,  day:5, start:"17:00", end:"22:00", ci:1, title:"✍️ 블로그 + CTF",       sub:"기존 풀어본 CTF writeup 블로그 옮기기 / CTF 3문제 풀이"},
+    {id:43,  day:6, start:"09:00", end:"16:00", ci:4, title:"🍔 버거킹 알바",        sub:""},
+    {id:45,  day:6, start:"17:00", end:"22:00", ci:9, title:"전공 복습 및 블로그에 정리 & 과제", sub:""},
 ];
-let nid = 102;
+let nid = 210;
 // ── helpers ──────────────────────────────────────────────────────────────────
 const t2m = t => { const [h,m]=t.split(":").map(Number); return h*60+m; };
 const m2px = m => ((m - S*60)/60)*HP;
@@ -783,5 +789,347 @@ loadFromLocal();
 render();
 
 </script>
+
+<!-- ── 공부 로드맵 섹션 ──────────────────────────────────────────────── -->
+<style>
+  .roadmap {
+    max-width: 1020px; margin: 48px auto 0; padding: 0 4px;
+  }
+  .roadmap-header {
+    text-align: center; margin-bottom: 28px;
+  }
+  .roadmap-header .label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: #4af0a0; letter-spacing: 4px; margin-bottom: 8px;
+  }
+  .roadmap-header h2 {
+    font-size: 22px; font-weight: 700;
+  }
+  .roadmap-header p {
+    font-size: 11px; color: #7a8aa0; margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* 우선순위 배지 */
+  .priority-row {
+    display: flex; gap: 10px; justify-content: center;
+    flex-wrap: wrap; margin-bottom: 32px;
+  }
+  .priority-badge {
+    display: flex; align-items: center; gap: 8px;
+    background: #13161e; border: 1px solid #1e2330;
+    border-radius: 20px; padding: 7px 14px;
+    font-size: 12px;
+  }
+  .priority-badge .num {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    font-weight: 700; width: 18px; height: 18px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: #4af0a0; color: #0d0f14; flex-shrink: 0;
+  }
+  .priority-badge.p2 .num { background: #4a9ff0; }
+  .priority-badge.p3 .num { background: #f0a04a; }
+  .priority-badge.p4 .num { background: #d04af0; }
+  .priority-badge.p5 .num { background: #6a7585; }
+
+  /* 카드 그리드 */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 14px; margin-bottom: 28px;
+  }
+  .card {
+    background: #13161e; border: 1px solid #1e2330;
+    border-radius: 10px; padding: 18px 20px;
+    border-top: 3px solid #4af0a0;
+  }
+  .card.blue   { border-top-color: #4a9ff0; }
+  .card.orange { border-top-color: #f0a04a; }
+  .card.purple { border-top-color: #d04af0; }
+  .card.red    { border-top-color: #f05a4a; }
+  .card.slate  { border-top-color: #6a7585; }
+
+  .card-title {
+    font-size: 13px; font-weight: 700; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    padding: 2px 7px; border-radius: 10px; font-weight: 400;
+    background: rgba(74,240,160,.12); color: #4af0a0;
+  }
+  .card.blue   .card-tag { background: rgba(74,159,240,.12); color: #4a9ff0; }
+  .card.orange .card-tag { background: rgba(240,160,74,.12); color: #f0a04a; }
+  .card.purple .card-tag { background: rgba(208,74,240,.12); color: #d04af0; }
+  .card.red    .card-tag { background: rgba(240,90,74,.12);  color: #f05a4a; }
+  .card.slate  .card-tag { background: rgba(106,117,133,.12);color: #6a7585; }
+
+  .card-book {
+    font-size: 11px; color: #a0b8c8; margin-bottom: 6px;
+    padding: 7px 10px; background: rgba(255,255,255,.03);
+    border-radius: 6px; border-left: 2px solid #2a3040;
+    line-height: 1.6;
+  }
+  .card-book b { color: #e2e8f0; }
+
+  .card-tips { list-style: none; margin-top: 8px; }
+  .card-tips li {
+    font-size: 11px; color: #7a8aa0; padding: 3px 0;
+    padding-left: 14px; position: relative; line-height: 1.5;
+  }
+  .card-tips li::before {
+    content: '→'; position: absolute; left: 0;
+    color: #4af0a0; font-size: 10px;
+  }
+  .card.blue   .card-tips li::before { color: #4a9ff0; }
+  .card.orange .card-tips li::before { color: #f0a04a; }
+  .card.purple .card-tips li::before { color: #d04af0; }
+  .card.slate  .card-tips li::before { color: #6a7585; }
+
+  /* 이동시간 루틴 박스 */
+  .commute-box {
+    background: #13161e; border: 1px solid #1e2330;
+    border-radius: 10px; padding: 18px 22px;
+    display: flex; gap: 24px; flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .commute-item { display: flex; align-items: flex-start; gap: 12px; flex: 1; min-width: 200px; }
+  .commute-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+    background: rgba(74,240,160,.1);
+  }
+  .commute-icon.news { background: rgba(74,159,240,.1); }
+  .commute-label { font-size: 12px; font-weight: 600; margin-bottom: 3px; }
+  .commute-desc  { font-size: 11px; color: #7a8aa0; line-height: 1.5; }
+
+  /* 4주 타임라인 */
+  .timeline { display: flex; gap: 10px; flex-wrap: wrap; }
+  .week-card {
+    flex: 1; min-width: 200px;
+    background: #13161e; border: 1px solid #1e2330;
+    border-radius: 10px; padding: 16px 18px;
+  }
+  .week-card .wk-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    color: #4af0a0; letter-spacing: 2px; margin-bottom: 6px;
+  }
+  .week-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+  .week-card ul { list-style: none; }
+  .week-card ul li {
+    font-size: 11px; color: #7a8aa0; padding: 3px 0;
+    padding-left: 14px; position: relative; line-height: 1.5;
+  }
+  .week-card ul li::before {
+    content: '·'; position: absolute; left: 4px; color: #4af0a0;
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: #4af0a0; letter-spacing: 3px; margin-bottom: 14px;
+    margin-top: 28px; display: block;
+  }
+
+  .divider {
+    border: none; border-top: 1px solid #1e2330;
+    margin: 32px 0;
+  }
+</style>
+
+<div class="roadmap">
+  <div class="roadmap-header">
+    <div class="label">// study roadmap</div>
+    <h2>화햇 필기·면접 대비 공부 로드맵</h2>
+    <p>4월 모집공고 전까지 · 필기 통과 + 면접 기본기 완성 목표</p>
+  </div>
+
+  <!-- 우선순위 -->
+  <span class="section-label" style="margin-top:0">// priority</span>
+  <div class="priority-row">
+    <div class="priority-badge">
+      <div class="num">1</div>
+      <span>정보보안개론 + 보안뉴스 매일</span>
+    </div>
+    <div class="priority-badge p2">
+      <div class="num">2</div>
+      <span>정보보안기사·정처기 기출 반복</span>
+    </div>
+    <div class="priority-badge p3">
+      <div class="num">3</div>
+      <span>보안솔루션 개념 정리</span>
+    </div>
+    <div class="priority-badge p4">
+      <div class="num">4</div>
+      <span>CS 공부 (OS·DB·네트워크)</span>
+    </div>
+    <div class="priority-badge p5">
+      <div class="num">5</div>
+      <span>면접 질문 답변 + 보안 이슈 정리</span>
+    </div>
+  </div>
+
+  <!-- 과목 카드 -->
+  <span class="section-label">// subjects</span>
+  <div class="cards">
+
+    <div class="card">
+      <div class="card-title">📘 정보보안개론 <span class="card-tag">필기 핵심</span></div>
+      <div class="card-book"><b>「정보보안개론」 양대일 저</b> (한빛미디어)<br>+ 1·2차 모의필기 오답 역추적</div>
+      <ul class="card-tips">
+        <li>처음부터 통독 ❌ → 챕터별 개념 → 문제 → 오답 순서로</li>
+        <li>틀린 문항 위주로 개념 정리</li>
+        <li>암호·네트워크 보안·접근통제·시스템 보안 우선</li>
+      </ul>
+    </div>
+
+    <div class="card blue">
+      <div class="card-title">📝 정보보안기사 <span class="card-tag blue">기출 반복</span></div>
+      <div class="card-book"><b>「수제비 정보보안기사」</b> 또는 이기적 시리즈<br>+ 정처기 기출 앱 (무료)</div>
+      <ul class="card-tips">
+        <li>이론서보다 기출 5개년 반복이 핵심</li>
+        <li>모르는 개념 나올 때만 이론서 참고</li>
+        <li>이동시간 앱 풀이 → 귀가 후 오답노트</li>
+      </ul>
+    </div>
+
+    <div class="card orange">
+      <div class="card-title">💻 CS 지식 <span class="card-tag orange">면접 필수</span></div>
+      <div class="card-book">
+        <b>OS</b> → KOCW 반효경 교수 강의 (무료 명강의)<br>
+        <b>DB</b> → 유튜브 "코딩애플" DB 강의<br>
+        <b>네트워크</b> → 유튜브 "널널한 개발자"
+      </div>
+      <ul class="card-tips">
+        <li>프로세스·스레드, 메모리관리, TCP/IP, 정규화 우선</li>
+        <li>면접 단골 개념 위주로 압축 정리</li>
+      </ul>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title">🛡️ 보안 솔루션 <span class="card-tag purple">면접 단골</span></div>
+      <div class="card-book">별도 교재 없이 블로그·유튜브 검색<br>방화벽 / IDS·IPS / WAF / SIEM / DLP / EDR</div>
+      <ul class="card-tips">
+        <li>종류 → 역할 → 동작 원리 → 한계점 4단계로 정리</li>
+        <li>"이 솔루션 설명해봐" 유형 면접 대비</li>
+      </ul>
+    </div>
+
+    <div class="card red">
+      <div class="card-title">📰 보안 동향 <span class="card-tag red">매일 루틴</span></div>
+      <div class="card-book">
+        boannews.com / AhnLab TIP<br>KISA 인터넷 보호나라 월간 리포트
+      </div>
+      <ul class="card-tips">
+        <li>매일 헤드라인 5분 읽기 (이동시간 활용)</li>
+        <li>주 1~2개 이슈 → 노션에 3줄 요약 스크랩</li>
+        <li>"최근 보안 이슈 말해봐" 면접 질문 대비</li>
+      </ul>
+    </div>
+
+    <div class="card slate">
+      <div class="card-title">🎯 정처기 <span class="card-tag slate">병행</span></div>
+      <div class="card-book"><b>「수제비 정보처리기사」</b> 필기·실기 시리즈<br>+ 정처기 기출 앱 (무료)</div>
+      <ul class="card-tips">
+        <li>화햇과 겹치는 네트워크·DB·보안 파트 먼저</li>
+        <li>기출 반복, 이론 오래 붙잡지 않기</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <hr class="divider">
+
+  <!-- 공통 루틴 박스 -->
+  <span class="section-label">// 4-week plan</span>
+  <div class="commute-box" style="margin-bottom:14px; flex-wrap:wrap; gap:16px;">
+    <div style="width:100%; font-family:'JetBrains Mono',monospace; font-size:10px; color:#4af0a0; letter-spacing:2px; margin-bottom:4px;">COMMON · 매일 공통</div>
+    <div class="commute-item">
+      <div class="commute-icon">📱</div>
+      <div>
+        <div class="commute-label">등교 이동</div>
+        <div class="commute-desc">정처기 기출 앱 30문제</div>
+      </div>
+    </div>
+    <div class="commute-item">
+      <div class="commute-icon news">📰</div>
+      <div>
+        <div class="commute-label">하교 이동</div>
+        <div class="commute-desc">보안뉴스 읽기 + 스크랩</div>
+      </div>
+    </div>
+    <div class="commute-item">
+      <div class="commute-icon" style="background:rgba(208,74,240,.1)">🛡️</div>
+      <div>
+        <div class="commute-label">보안솔루션</div>
+        <div class="commute-desc">방화벽·IDS·IPS·WAF 개념 정리</div>
+      </div>
+    </div>
+    <div class="commute-item">
+      <div class="commute-icon" style="background:rgba(240,160,74,.1)">💻</div>
+      <div>
+        <div class="commute-label">CS 공부</div>
+        <div class="commute-desc">OS·DB·네트워크 핵심 개념</div>
+      </div>
+    </div>
+    <div class="commute-item">
+      <div class="commute-icon" style="background:rgba(74,159,240,.1)">✏️</div>
+      <div>
+        <div class="commute-label">기출 풀이</div>
+        <div class="commute-desc">정보보안기사 + 정처기 기출</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4주 타임라인 -->
+  <div class="timeline">
+    <div class="week-card">
+      <div class="wk-label">WEEK 01</div>
+      <h4>🔨 기반 쌓기</h4>
+      <ul>
+        <li>정보보안개론 1~3챕터</li>
+        <li>암호·네트워크 보안 개념</li>
+        <li>모의필기 1회차 전체 풀기</li>
+        <li>→ 오답 개념 정리</li>
+      </ul>
+    </div>
+    <div class="week-card">
+      <div class="wk-label">WEEK 02</div>
+      <h4>📚 핵심 개념</h4>
+      <ul>
+        <li>정보보안개론 4~6챕터</li>
+        <li>접근통제·시스템 보안</li>
+        <li>모의필기 2회차 전체 풀기</li>
+        <li>→ 오답 정리</li>
+        <li>면접 예상 질문 목록 뽑기</li>
+      </ul>
+    </div>
+    <div class="week-card">
+      <div class="wk-label">WEEK 03</div>
+      <h4>🎤 면접 대비</h4>
+      <ul>
+        <li>예상 면접 질문 10개 답변 작성</li>
+        <li>보안 이슈 5개 정리</li>
+        <li>랜섬웨어·제로데이·공급망</li>
+        <li>피싱·취약점 CVE</li>
+      </ul>
+    </div>
+    <div class="week-card">
+      <div class="wk-label">WEEK 04</div>
+      <h4>🎯 실전 시뮬레이션</h4>
+      <ul>
+        <li>모의필기 1·2차 시간 재고 실전 풀기</li>
+        <li>면접 답변 소리 내어 연습</li>
+        <li>→ 녹음 후 셀프 피드백</li>
+        <li>약한 개념 마지막 보완</li>
+        <li>컨디션 관리 (무리 ❌)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="height:40px"></div>
+</div>
+<!-- ── END 공부 로드맵 ─────────────────────────────────────────────── -->
+
 </body>
 </html>
